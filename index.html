@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodMagnet 🔮</title>
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #FF7675;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .mood-indicator {
+            font-size: 4rem;
+            animation: pulse 2s infinite;
+        }
+        .question {
+            margin: 20px 0;
+            font-size: 1.2rem;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+        button {
+            background: var(--secondary);
+            border: none;
+            padding: 12px 20px;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 1rem;
+            transition: transform 0.3s, opacity 0.5s ease-in-out;
+            display: block;
+            width: 80%;
+            max-width: 250px;
+            margin: 10px auto;
+        }
+        button:hover {
+            transform: scale(1.1);
+        }
+        #result {
+            display: none;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .share-buttons {
+            margin-top: 20px;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="quiz">
+            <div class="mood-indicator">🔮</div>
+            <h1>MoodMagnet</h1>
+            <p>Answer 3 questions – I'll guess your mood!</p>
+
+            <div class="question" id="q1">
+                How does this emoji make you feel? 😈
+            </div>
+            <div class="btn-group" id="q1-buttons">
+                <button onclick="nextQuestion(1, 'playful')">Playful</button>
+                <button onclick="nextQuestion(1, 'annoyed')">Annoyed</button>
+            </div>
+
+            <div class="question" id="q2" style="display: none;">Pick a color:</div>
+            <div class="btn-group" id="q2-buttons" style="display: none;">
+                <button onclick="nextQuestion(2, 'red')">🔴 Red</button>
+                <button onclick="nextQuestion(2, 'blue')">🔵 Blue</button>
+            </div>
+
+            <div class="question" id="q3" style="display: none;">Finish the sentence: "I need..."</div>
+            <div class="btn-group" id="q3-buttons" style="display: none;">
+                <button onclick="showResult('coffee')">☕ Coffee</button>
+                <button onclick="showResult('sleep')">💤 Sleep</button>
+            </div>
+        </div>
+
+        <div id="result">
+            <div id="mood-card"></div>
+            <div class="share-buttons">
+                <button onclick="shareResult()">Share Your Mood 🔗</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let moodData = [];
+        const moods = {
+            playful_red_coffee: { emoji: "🌪️", name: "Controlled Chaos", desc: "You’re buzzing with energy but secretly craving calm." },
+            playful_red_sleep: { emoji: "🔥", name: "Burning Passion", desc: "You’re full of ideas but running low on fuel!" },
+            playful_blue_coffee: { emoji: "🌊", name: "Cool Breeze", desc: "Chill vibes, but your mind is racing with creativity." },
+            playful_blue_sleep: { emoji: "❄️", name: "Frozen in Thought", desc: "Deep thinker, but you need rest to recharge." },
+            annoyed_red_coffee: { emoji: "⚡", name: "Electrified Rage", desc: "Your energy is high, but so is your frustration." },
+            annoyed_red_sleep: { emoji: "🌋", name: "Volcanic Exhaustion", desc: "Tired, but one spark could set you off." },
+            annoyed_blue_coffee: { emoji: "🌩️", name: "Storm Brewing", desc: "Calm on the outside, but thunder inside." },
+            annoyed_blue_sleep: { emoji: "🌌", name: "Cosmic Fatigue", desc: "Mentally exhausted, but your soul is dreaming big." },
+            default: { emoji: "🎲", name: "Mystery Mode", desc: "You defy categorization. Rebel soul!" }
+        };
+
+        function nextQuestion(currentQ, value) {
+            moodData.push(value);
+            fadeOut(`q${currentQ}`);
+            fadeOut(`q${currentQ}-buttons`);
+            
+            const nextQ = currentQ + 1;
+            if (nextQ <= 3) {
+                setTimeout(() => {
+                    fadeIn(`q${nextQ}`);
+                    fadeIn(`q${nextQ}-buttons`);
+                }, 500);
+            }
+        }
+
+        function showResult() {
+            const moodKey = moodData.join('_');
+            const mood = moods[moodKey] || moods.default;
+
+            fadeOut("quiz");
+            setTimeout(() => {
+                document.getElementById('mood-card').innerHTML = `
+                    <h2>Your Mood: ${mood.emoji} ${mood.name}</h2>
+                    <p>${mood.desc}</p>
+                    <div style="font-size: 3rem;">${mood.emoji}</div>
+                `;
+                fadeIn("result");
+            }, 500);
+        }
+
+        function fadeOut(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.style.opacity = "0";
+                setTimeout(() => el.style.display = "none", 500);
+            }
+        }
+
+        function fadeIn(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.style.display = "block";
+                setTimeout(() => el.style.opacity = "1", 50);
+            }
+        }
+
+        function shareResult() {
+            const text = `My mood is ${document.querySelector('#mood-card h2').textContent} – MoodMagnet just read my mind! 🔮`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'MoodMagnet',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(text + " " + window.location.href);
+                alert("Mood copied! Paste and share it with your friends.");
+            }
+        }
+    </script>
+</body>
+</html>
